@@ -20,7 +20,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          php-version: '8.3'
+          php-version: '8.4'
 
       - name: Install Laravel Pint
         run: composer global require laravel/pint
