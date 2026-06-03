@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Hash;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 
-//test('security page is displayed', function () {
+// test('security page is displayed', function () {
 //    $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
 //
 //    Features::twoFactorAuthentication([
@@ -22,9 +22,9 @@ use Laravel\Fortify\Features;
 //            ->where('canManageTwoFactor', true)
 //            ->where('twoFactorEnabled', false),
 //        );
-//});
+// });
 //
-//test('security page renders without two factor when feature is disabled', function () {
+// test('security page renders without two factor when feature is disabled', function () {
 //    $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
 //
 //    config(['fortify.features' => []]);
@@ -40,7 +40,7 @@ use Laravel\Fortify\Features;
 //            ->missing('twoFactorEnabled')
 //            ->missing('requiresConfirmation'),
 //        );
-//});
+// });
 
 test('password can be updated', function () {
     $user = User::factory()->create();
