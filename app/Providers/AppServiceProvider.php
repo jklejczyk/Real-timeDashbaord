@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Interfaces\StatsServiceInterface;
+use App\Services\CachedStatsService;
+use App\Services\StatsService;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +18,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->when(CachedStatsService::class)
+            ->needs(StatsServiceInterface::class)->give(StatsService::class);
+
+        $this->app->bind(StatsServiceInterface::class, CachedStatsService::class);
     }
 
     /**

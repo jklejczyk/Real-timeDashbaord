@@ -1,0 +1,28 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Order;
+use App\Models\Worker;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class DashboardSeeder extends Seeder
+{
+    use WithoutModelEvents;
+
+    public function run(): void
+    {
+        $workers = Worker::factory(15)->create();
+
+        Worker::factory(3)->inactive()->create();
+
+        $workers->each(function (Worker $worker): void {
+            Order::factory(40)->for($worker)->completed()->create();
+            Order::factory(8)->for($worker)->inProgress()->create();
+
+            Order::factory(5)->for($worker)->create();
+            Order::factory(3)->for($worker)->delayed()->create();
+        });
+    }
+}
