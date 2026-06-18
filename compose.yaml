@@ -24,6 +24,40 @@ services:
         depends_on:
             - pgsql
             - redis
+    queue:
+        image: 'sail-8.4/app'
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+            REVERB_HOST: reverb
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        command: php artisan queue:listen --tries=1 --timeout=0
+        restart: unless-stopped
+        depends_on:
+            - pgsql
+            - redis
+    reverb:
+        image: 'sail-8.4/app'
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        ports:
+            - '${REVERB_SERVER_PORT:-8081}:8081'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        command: php artisan reverb:start --debug
+        restart: unless-stopped
+        depends_on:
+            - redis
     pgsql:
         image: 'postgres:18-alpine'
         ports:

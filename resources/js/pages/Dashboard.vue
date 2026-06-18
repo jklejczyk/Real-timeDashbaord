@@ -20,6 +20,7 @@ import type {
     WorkerOption,
     WorkerStat,
 } from '@/types/dashboard';
+import { useLiveDashboard } from '@/composables/useLiveDashboard';
 
 const props = defineProps<{
     filters: DashboardFilterValues;
@@ -40,6 +41,8 @@ defineOptions({
         breadcrumbs: [{ title: 'Dashboard', href: dashboard() }],
     },
 });
+
+useLiveDashboard();
 
 const statusCards = computed(() => [
     { title: 'Oczekujące', value: props.statusCounts.pending },
