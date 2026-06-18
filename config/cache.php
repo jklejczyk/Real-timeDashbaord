@@ -1,5 +1,11 @@
 <?php
 
+use App\DTOs\DailyOrderCountData;
+use App\DTOs\MonthlyRevenueData;
+use App\DTOs\OrderStatusCountsData;
+use App\DTOs\RevenueComparisonData;
+use App\DTOs\WorkerStatData;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 return [
@@ -131,6 +137,13 @@ return [
     |
     */
 
-    'serializable_classes' => false,
+    'serializable_classes' => [
+        Collection::class,
+        RevenueComparisonData::class,
+        OrderStatusCountsData::class,
+        WorkerStatData::class,
+        MonthlyRevenueData::class,
+        DailyOrderCountData::class,
+    ],
 
 ];

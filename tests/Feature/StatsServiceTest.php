@@ -1,5 +1,7 @@
 <?php
 
+use App\DTOs\DashboardFilters;
+use App\Enums\OrderTypeEnum;
 use App\Models\Order;
 use App\Models\Worker;
 use App\Services\CachedStatsService;
@@ -153,4 +155,86 @@ test('revenueForPeriod uses period-specific cache keys', function () {
 
     expect($may)->toBe('100.00')
         ->and($june)->toBe('200.00');
+});
+
+test('revenuePerMonth buckets completed revenue by calendar month', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-06-18 12:00'));
+    $worker = Worker::factory()->create();
+
+    Order::factory()->for($worker)->completed()->create([
+        'amount' => 100.00,
+        'completed_at' => CarbonImmutable::parse('2026-06-05'),
+    ]);
+    Order::factory()->for($worker)->completed()->create([
+        'amount' => 50.00,
+        'completed_at' => CarbonImmutable::parse('2026-06-15'),
+    ]);
+    Order::factory()->for($worker)->completed()->create([
+        'amount' => 200.00,
+        'completed_at' => CarbonImmutable::parse('2026-04-10'),
+    ]);
+
+    $perMonth = app(StatsService::class)->revenuePerMonth(months: 6);
+
+    expect($perMonth)->toHaveCount(6)
+        ->and($perMonth->first()->month)->toBe('2026-01')
+        ->and($perMonth->last()->month)->toBe('2026-06')
+        ->and($perMonth->last()->total)->toBe('150.00')
+        ->and($perMonth->firstWhere('month', '2026-04')->total)->toBe('200.00')
+        ->and($perMonth->firstWhere('month', '2026-05')->total)->toBe('0');
+});
+
+test('ordersTrendDaily counts orders per day and fills empty days with zero', function () {
+    $worker = Worker::factory()->create();
+
+    Order::factory(2)->for($worker)->create(['created_at' => CarbonImmutable::parse('2026-06-10 09:00')]);
+    Order::factory()->for($worker)->create(['created_at' => CarbonImmutable::parse('2026-06-12 09:00')]);
+
+    $trend = app(StatsService::class)->ordersTrendDaily(new DashboardFilters(
+        startDate: CarbonImmutable::parse('2026-06-10')->startOfDay(),
+        endDate: CarbonImmutable::parse('2026-06-12')->endOfDay(),
+    ));
+
+    expect($trend)->toHaveCount(3)
+        ->and($trend->firstWhere('date', '2026-06-10')->count)->toBe(2)
+        ->and($trend->firstWhere('date', '2026-06-11')->count)->toBe(0)
+        ->and($trend->firstWhere('date', '2026-06-12')->count)->toBe(1);
+});
+
+test('ordersByStatus honours worker, type and date filters', function () {
+    $alice = Worker::factory()->create();
+    $bob = Worker::factory()->create();
+
+    Order::factory()->for($alice)->completed()->create([
+        'type' => OrderTypeEnum::Repair,
+        'created_at' => CarbonImmutable::parse('2026-06-10'),
+    ]);
+    Order::factory()->for($alice)->delayed()->create([
+        'type' => OrderTypeEnum::Repair,
+        'created_at' => CarbonImmutable::parse('2026-06-11'),
+    ]);
+    Order::factory()->for($alice)->completed()->create([
+        'type' => OrderTypeEnum::Installation,
+        'created_at' => CarbonImmutable::parse('2026-06-10'),
+    ]);
+    Order::factory()->for($bob)->completed()->create([
+        'type' => OrderTypeEnum::Repair,
+        'created_at' => CarbonImmutable::parse('2026-06-10'),
+    ]);
+    Order::factory()->for($alice)->completed()->create([
+        'type' => OrderTypeEnum::Repair,
+        'created_at' => CarbonImmutable::parse('2026-05-01'),
+    ]);
+
+    $counts = app(StatsService::class)->ordersByStatus(new DashboardFilters(
+        startDate: CarbonImmutable::parse('2026-06-01')->startOfDay(),
+        endDate: CarbonImmutable::parse('2026-06-30')->endOfDay(),
+        workerId: $alice->id,
+        type: OrderTypeEnum::Repair,
+    ));
+
+    expect($counts->completed)->toBe(1)
+        ->and($counts->delayed)->toBe(1)
+        ->and($counts->pending)->toBe(0)
+        ->and($counts->inProgress)->toBe(0);
 });

@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\DTOs\DailyOrderCountData;
+use App\DTOs\DashboardFilters;
+use App\DTOs\MonthlyRevenueData;
 use App\DTOs\OrderStatusCountsData;
 use App\DTOs\RevenueComparisonData;
 use App\DTOs\WorkerStatData;
@@ -19,12 +22,12 @@ final readonly class CachedStatsService implements StatsServiceInterface
         private Cache $cache,
     ) {}
 
-    public function ordersByStatus(): OrderStatusCountsData
+    public function ordersByStatus(?DashboardFilters $filters = null): OrderStatusCountsData
     {
         return $this->cache->remember(
-            'stats:orders_by_status',
+            'stats:orders_by_status:'.($filters?->cacheKey() ?? 'all'),
             self::TTL_SECONDS,
-            fn (): OrderStatusCountsData => $this->statsService->ordersByStatus(),
+            fn (): OrderStatusCountsData => $this->statsService->ordersByStatus($filters),
         );
     }
 
@@ -55,6 +58,30 @@ final readonly class CachedStatsService implements StatsServiceInterface
             "stats:top_workers:{$limit}",
             self::TTL_SECONDS,
             fn (): Collection => $this->statsService->topWorkers($limit),
+        );
+    }
+
+    /**
+     * @return Collection<int, MonthlyRevenueData>
+     */
+    public function revenuePerMonth(int $months = 6, ?DashboardFilters $filters = null): Collection
+    {
+        return $this->cache->remember(
+            "stats:revenue_per_month:{$months}:".($filters?->cacheKey() ?? 'all'),
+            self::TTL_SECONDS,
+            fn (): Collection => $this->statsService->revenuePerMonth($months, $filters),
+        );
+    }
+
+    /**
+     * @return Collection<int, DailyOrderCountData>
+     */
+    public function ordersTrendDaily(DashboardFilters $filters): Collection
+    {
+        return $this->cache->remember(
+            'stats:orders_trend_daily:'.$filters->cacheKey(),
+            self::TTL_SECONDS,
+            fn (): Collection => $this->statsService->ordersTrendDaily($filters),
         );
     }
 }
