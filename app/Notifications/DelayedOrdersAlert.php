@@ -3,9 +3,7 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class DelayedOrdersAlert extends Notification
@@ -15,10 +13,7 @@ class DelayedOrdersAlert extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(public int $delayedCount, public int $threshold)
-    {
-
-    }
+    public function __construct(public int $delayedCount, public int $threshold) {}
 
     /**
      * Get the notification's delivery channels.
