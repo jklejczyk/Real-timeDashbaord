@@ -9,7 +9,20 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $worker_id
+ * @property OrderStatusEnum $status
+ * @property OrderTypeEnum $type
+ * @property string $amount
+ * @property Carbon|null $due_at
+ * @property Carbon|null $completed_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property-read Worker $worker
+ */
 #[Fillable(['worker_id', 'status', 'type', 'amount', 'due_at', 'completed_at'])]
 class Order extends Model
 {
