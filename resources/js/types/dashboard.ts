@@ -53,3 +53,8 @@ export interface ActivityItem {
     amount: string;
     createdAt: string;
 }
+
+export interface DashboardViewer {
+    id: number;
+    name: string;
+}

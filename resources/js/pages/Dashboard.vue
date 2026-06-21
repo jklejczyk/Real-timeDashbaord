@@ -4,10 +4,15 @@ import { computed } from 'vue';
 import BarChart from '@/components/charts/BarChart.vue';
 import LineChart from '@/components/charts/LineChart.vue';
 import PieChart from '@/components/charts/PieChart.vue';
+import ActivityTimeline from '@/components/dashboard/ActivityTimeline.vue';
 import DashboardFilters from '@/components/dashboard/DashboardFilters.vue';
+import OnlineViewers from '@/components/dashboard/OnlineViewers.vue';
 import StatCard from '@/components/dashboard/StatCard.vue';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useActivityFeed } from '@/composables/useActivityFeed';
+import { useLiveDashboard } from '@/composables/useLiveDashboard';
+import { useDashboardPresence } from '@/composables/usePresence';
 import { formatCurrency, formatDayLabel, formatNumber } from '@/lib/format';
 import { dashboard } from '@/routes';
 import type {
@@ -21,9 +26,6 @@ import type {
     WorkerOption,
     WorkerStat,
 } from '@/types/dashboard';
-import ActivityTimeline from '@/components/dashboard/ActivityTimeline.vue';
-import { useLiveDashboard } from '@/composables/useLiveDashboard';
-import { useActivityFeed } from '@/composables/useActivityFeed';
 
 const props = defineProps<{
     filters: DashboardFilterValues;
@@ -48,6 +50,7 @@ defineOptions({
 
 useLiveDashboard();
 const { items: activityItems } = useActivityFeed(props.recentActivity);
+const { viewers } = useDashboardPresence();
 
 const statusCards = computed(() => [
     { title: 'Oczekujące', value: props.statusCounts.pending },
@@ -86,6 +89,7 @@ const trendValues = computed(() =>
     <Head title="Dashboard" />
 
     <div class="flex h-full flex-1 flex-col gap-4 p-4">
+        <OnlineViewers :viewers="viewers" />
         <DashboardFilters
             :filters="filters"
             :workers="filterOptions.workers"
