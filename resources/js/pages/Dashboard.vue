@@ -28,6 +28,8 @@ import type {
 } from '@/types/dashboard';
 import ViewingIndicator from '@/components/dashboard/ViewingIndicator.vue';
 import { useDashboardAlerts } from '@/composables/useDashboardAlerts';
+import ConnectionBanner from '@/components/dashboard/ConnectionBanner.vue';
+import { useConnectionResilience } from '@/composables/useConnectionResilience';
 
 const props = defineProps<{
     filters: DashboardFilterValues;
@@ -54,6 +56,7 @@ useLiveDashboard();
 useDashboardAlerts();
 const { items: activityItems } = useActivityFeed(props.recentActivity);
 const { viewers, viewingByUser, whisperViewing } = useDashboardPresence();
+const { status } = useConnectionResilience();
 
 const statusCards = computed(() => [
     { title: 'Oczekujące', value: props.statusCounts.pending },
@@ -92,6 +95,7 @@ const trendValues = computed(() =>
     <Head title="Dashboard" />
 
     <div class="flex h-full flex-1 flex-col gap-4 p-4">
+        <ConnectionBanner :status="status" />
         <OnlineViewers :viewers="viewers" />
         <ViewingIndicator :viewing="viewingByUser" />
         <DashboardFilters
