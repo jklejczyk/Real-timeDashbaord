@@ -92,5 +92,3 @@ Otwórz `/dashboard`, odpal `demo:simulate` i patrz: timeline rośnie, liczniki/
 vendor/bin/phpstan analyse                # analiza statyczna (level 7)
 vendor/bin/pint                           # formatowanie
 ```
-
-> Testy uruchamiaj **w kontenerze** — baza testowa to Postgres pod hostem `pgsql`, niedostępnym z hosta.
