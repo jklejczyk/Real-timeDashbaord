@@ -6,6 +6,7 @@ use App\DTOs\DashboardFilters;
 use App\Enums\OrderTypeEnum;
 use App\Http\Requests\DashboardFilterRequest;
 use App\Interfaces\StatsServiceInterface;
+use App\Models\Order;
 use App\Models\Worker;
 use Illuminate\Support\Facades\Date;
 use Inertia\Inertia;
@@ -48,6 +49,19 @@ class DashboardController extends Controller
             'topWorkers' => $statsService->topWorkers(),
             'revenuePerMonth' => Inertia::defer(fn () => $statsService->revenuePerMonth(filters: $filters)),
             'ordersTrend' => Inertia::defer(fn () => $statsService->ordersTrendDaily($filters)),
+            'recentActivity' => Order::query()
+                ->with('worker')
+                ->latest('id')
+                ->limit(50)
+                ->get()
+                ->map(fn (Order $order): array => [
+                    'id' => $order->id,
+                    'workerName' => $order->worker->name,
+                    'type' => $order->type->value,
+                    'status' => $order->status->value,
+                    'amount' => $order->amount,
+                    'createdAt' => $order->created_at->toIso8601String(),
+                ]),
         ]);
     }
 }

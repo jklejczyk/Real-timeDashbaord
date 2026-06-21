@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency, formatDayLabel, formatNumber } from '@/lib/format';
 import { dashboard } from '@/routes';
 import type {
+    ActivityItem,
     DailyOrderCount,
     DashboardFilterValues,
     MonthlyRevenue,
@@ -20,7 +21,9 @@ import type {
     WorkerOption,
     WorkerStat,
 } from '@/types/dashboard';
+import ActivityTimeline from '@/components/dashboard/ActivityTimeline.vue';
 import { useLiveDashboard } from '@/composables/useLiveDashboard';
+import { useActivityFeed } from '@/composables/useActivityFeed';
 
 const props = defineProps<{
     filters: DashboardFilterValues;
@@ -34,6 +37,7 @@ const props = defineProps<{
     topWorkers: WorkerStat[];
     revenuePerMonth?: MonthlyRevenue[];
     ordersTrend?: DailyOrderCount[];
+    recentActivity: ActivityItem[];
 }>();
 
 defineOptions({
@@ -43,6 +47,7 @@ defineOptions({
 });
 
 useLiveDashboard();
+const { items: activityItems } = useActivityFeed(props.recentActivity);
 
 const statusCards = computed(() => [
     { title: 'Oczekujące', value: props.statusCounts.pending },
@@ -202,6 +207,8 @@ const trendValues = computed(() =>
                     </li>
                 </ol>
             </Card>
+
+            <ActivityTimeline :items="activityItems" />
         </div>
     </div>
 </template>

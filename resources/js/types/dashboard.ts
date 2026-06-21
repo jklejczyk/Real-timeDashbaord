@@ -44,3 +44,12 @@ export interface OrderTypeOption {
     value: string;
     label: string;
 }
+
+export interface ActivityItem {
+    id: number;
+    workerName: string;
+    type: string;
+    status: string;
+    amount: string;
+    createdAt: string;
+}

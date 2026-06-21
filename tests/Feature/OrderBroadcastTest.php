@@ -16,19 +16,13 @@ test('the simulate command broadcasts OrderCreated', function () {
     );
 });
 
-test('OrderCreated broadcasts a thin payload on the private dashboard channel', function () {
-    $order = Order::factory()->for(Worker::factory())->create([
-        'status' => OrderStatusEnum::Completed,
-    ]);
+test('broadcasts a full order row in the live feed payload', function () {
+    $worker = Worker::factory()->create(['name' => 'Jan']);
+    $order = Order::factory()->for($worker)->create();
 
-    $event = new OrderCreated($order);
+    $payload = (new OrderCreated($order))->broadcastWith();
 
-    expect($event->broadcastOn()[0]->name)->toBe('private-dashboard')
-        ->and($event->broadcastAs())->toBe('order.created')
-        ->and($event->broadcastWith())->toBe([
-            'id' => $order->id,
-            'type' => $order->type->value,
-            'status' => $order->status->value,
-            'amount' => $order->amount,
-        ]);
+    expect($payload)
+        ->toHaveKeys(['id', 'workerName', 'type', 'status', 'amount', 'createdAt'])
+        ->and($payload['workerName'])->toBe('Jan');
 });

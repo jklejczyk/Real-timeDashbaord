@@ -35,15 +35,17 @@ class OrderCreated implements ShouldBroadcast
     }
 
     /**
-     * @return array{id: int, type: string, status: string, amount: string}
+     * @return array{id: int, workerName: string, type: string, status: string, amount: string, createdAt: string}
      */
     public function broadcastWith(): array
     {
         return [
             'id' => $this->order->id,
+            'workerName' => $this->order->worker->name,
             'type' => $this->order->type->value,
             'status' => $this->order->status->value,
             'amount' => $this->order->amount,
+            'createdAt' => $this->order->created_at->toIso8601String(),
         ];
     }
 
