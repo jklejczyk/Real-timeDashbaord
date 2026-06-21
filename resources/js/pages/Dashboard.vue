@@ -26,6 +26,7 @@ import type {
     WorkerOption,
     WorkerStat,
 } from '@/types/dashboard';
+import ViewingIndicator from '@/components/dashboard/ViewingIndicator.vue';
 
 const props = defineProps<{
     filters: DashboardFilterValues;
@@ -50,7 +51,7 @@ defineOptions({
 
 useLiveDashboard();
 const { items: activityItems } = useActivityFeed(props.recentActivity);
-const { viewers } = useDashboardPresence();
+const { viewers, viewingByUser, whisperViewing } = useDashboardPresence();
 
 const statusCards = computed(() => [
     { title: 'Oczekujące', value: props.statusCounts.pending },
@@ -90,6 +91,7 @@ const trendValues = computed(() =>
 
     <div class="flex h-full flex-1 flex-col gap-4 p-4">
         <OnlineViewers :viewers="viewers" />
+        <ViewingIndicator :viewing="viewingByUser" />
         <DashboardFilters
             :filters="filters"
             :workers="filterOptions.workers"
@@ -131,7 +133,10 @@ const trendValues = computed(() =>
 
         <!-- Wykresy: słupkowy (przychód/miesiąc, deferred) + kołowy (statusy) -->
         <div class="grid gap-4 lg:grid-cols-3">
-            <Card class="gap-3 p-5 lg:col-span-2">
+            <Card
+                class="gap-3 p-5 lg:col-span-2"
+                @mouseenter="whisperViewing('Przychód per miesiąc')"
+            >
                 <h2 class="text-sm font-medium text-muted-foreground">
                     Przychód per miesiąc
                 </h2>
@@ -148,7 +153,10 @@ const trendValues = computed(() =>
                 </div>
             </Card>
 
-            <Card class="gap-3 p-5">
+            <Card
+                class="gap-3 p-5"
+                @mouseenter="whisperViewing('Zlecenia per status')"
+            >
                 <h2 class="text-sm font-medium text-muted-foreground">
                     Zlecenia per status
                 </h2>
