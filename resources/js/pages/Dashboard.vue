@@ -27,6 +27,7 @@ import type {
     WorkerStat,
 } from '@/types/dashboard';
 import ViewingIndicator from '@/components/dashboard/ViewingIndicator.vue';
+import { useDashboardAlerts } from '@/composables/useDashboardAlerts';
 
 const props = defineProps<{
     filters: DashboardFilterValues;
@@ -50,6 +51,7 @@ defineOptions({
 });
 
 useLiveDashboard();
+useDashboardAlerts();
 const { items: activityItems } = useActivityFeed(props.recentActivity);
 const { viewers, viewingByUser, whisperViewing } = useDashboardPresence();
 
