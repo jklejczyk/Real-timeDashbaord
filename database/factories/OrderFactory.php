@@ -58,4 +58,16 @@ class OrderFactory extends Factory
             'completed_at' => null,
         ]);
     }
+
+    public function recent(): static
+    {
+        return $this->state(function (): array {
+            $createdAt = fake()->dateTimeBetween('-7 days', 'now');
+
+            return [
+                'created_at' => $createdAt,
+                'updated_at' => $createdAt,
+            ];
+        });
+    }
 }
